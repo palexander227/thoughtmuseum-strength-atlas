@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ThoughtMuseum Strength Atlas | Beta Release</title>
+  <meta name="description" content="A student and client-facing strength training atlas for exercise selection, movement patterns, durability, and coaching sessions." />
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap nav">
+      <a class="brand" href="#home" aria-label="ThoughtMuseum Strength Atlas home" style="text-decoration:none">
+        <div class="brand-mark">TM</div>
+        <div class="brand-text">
+          <strong>ThoughtMuseum Strength Atlas</strong>
+          <span>Exercise library · programs · coaching tracks</span>
+        </div>
+      </a>
+      <nav class="navlinks" aria-label="Primary navigation">
+        <a href="#library">Library</a>
+        <a href="#builder">Session Builder</a>
+        <a href="#programs">Programs</a>
+        <a href="#tracks">Client Tracks</a>
+        <a href="#coach">Coach Notes</a>
+        <a href="#sources">Sources</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="home">
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <article class="hero-card">
+          <div class="eyebrow">⚓ Beta Release 0.2 · consulting-ready strength education</div>
+          <h1>Train for strength, durability, and lifelong movement.</h1>
+          <p>
+            A polished exercise atlas for younger students, adult clients, and active 50+ lifters. Use it to teach exercises, choose substitutions, build short sessions, and organize strength work around movement patterns rather than random lists.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#library">Explore the exercise library →</a>
+            <a class="btn btn-ghost" href="#builder">Build a session</a>
+            <a class="btn btn-ghost" href="data/exercise_catalog.csv" download>Download CSV</a>
+          </div>
+        </article>
+        <aside class="status-stack">
+          <div class="mini-card">
+            <h3>Production beta dashboard</h3>
+            <p>Expanded exercise database, live filters, lesson tray, client tracks, and practical program templates.</p>
+            <div class="metric-row">
+              <div class="metric"><strong id="exerciseTotal">—</strong><span>atlas entries</span></div>
+              <div class="metric"><strong id="patternTotal">—</strong><span>patterns</span></div>
+              <div class="metric"><strong id="trackTotal">—</strong><span>tracks</span></div>
+            </div>
+          </div>
+          <div class="mini-card">
+            <h3>The operating principle</h3>
+            <p>Every session should identify the client, the pattern, the minimum effective dose, and the cue that makes the movement safer.</p>
+            <div class="stack-list">
+              <div class="stack-item"><div class="stack-icon">1</div><div><b>Move well</b><span>Range, control, balance, and posture before load.</span></div></div>
+              <div class="stack-item"><div class="stack-icon">2</div><div><b>Load wisely</b><span>Heavy enough to matter; never sloppy enough to cost you.</span></div></div>
+              <div class="stack-item"><div class="stack-icon">3</div><div><b>Repeat sustainably</b><span>Programs should compound, not consume recovery.</span></div></div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="tracks">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Client tracks</div>
+            <h2>One atlas, several audiences.</h2>
+          </div>
+          <p class="section-note">The same exercise can serve different people for different reasons. The track layer keeps recommendations practical for age, goal, equipment, and recovery capacity.</p>
+        </div>
+        <div class="grid grid-4">
+          <article class="card track-card"><div class="num">01</div><strong>Teen Athlete</strong><p>Technique, posture, unilateral control, sprint/jump preparation, and basic strength without rushing load.</p></article>
+          <article class="card track-card"><div class="num">02</div><strong>Student Energy</strong><p>Short desk-break routines for attention, posture, mood, and movement confidence.</p></article>
+          <article class="card track-card"><div class="num">03</div><strong>Adult Strength</strong><p>Barbell and dumbbell training for strength, muscle retention, and aesthetic structure.</p></article>
+          <article class="card track-card"><div class="num">04</div><strong>50+ Durability</strong><p>Joint-friendly strength, carries, posture, core endurance, hip strength, and sensible recovery.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="builder">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Session builder</div>
+            <h2>Generate a 15–30 minute client session.</h2>
+          </div>
+          <p class="section-note">Use this during consultations. The builder gives a fast starting plan, then you can load the session into the lesson tray and edit by hand.</p>
+        </div>
+        <div class="builder">
+          <article class="card">
+            <h3>Session inputs</h3>
+            <div class="builder-form">
+              <label>Client track
+                <select id="builderTrack">
+                  <option>50+ Durability</option>
+                  <option>Teen Athlete</option>
+                  <option>Student Energy</option>
+                  <option>Adult Strength</option>
+                </select>
+              </label>
+              <label>Available equipment
+                <select id="builderEquipment">
+                  <option>Any</option>
+                  <option>Body weight</option>
+                  <option>Dumbbells</option>
+                  <option>Barbell</option>
+                  <option>Cable station</option>
+                  <option>Bands</option>
+                </select>
+              </label>
+              <label>Time
+                <select id="builderTime">
+                  <option value="15">15 minutes</option>
+                  <option value="20">20 minutes</option>
+                  <option value="25" selected>25 minutes</option>
+                  <option value="30">30 minutes</option>
+                </select>
+              </label>
+              <label>Session emphasis
+                <select id="builderEmphasis">
+                  <option>Strength Maintenance</option>
+                  <option>Bench Support</option>
+                  <option>Squat Support</option>
+                  <option>Posture Reset</option>
+                  <option>Athletic Durability</option>
+                </select>
+              </label>
+              <button class="btn btn-dark" id="buildSession" type="button">Generate session</button>
+            </div>
+          </article>
+          <article class="session-output" id="sessionOutput" aria-live="polite"></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="programs">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Programs</div>
+            <h2>Ready-to-use templates.</h2>
+          </div>
+          <p class="section-note">These are deliberately short. The consulting value is in choosing the right few exercises and teaching them cleanly.</p>
+        </div>
+        <div class="grid grid-3">
+          <article class="card program-card">
+            <div class="badge-row"><span class="tag durability">50+ Durability</span><span class="tag strength">Bench + Squat</span></div>
+            <h3>Six-Day Strength Maintenance</h3>
+            <p>Designed around heavy bench and squat exposures, with short support sessions for posture, posterior chain, and core.</p>
+            <div class="program-table">
+              <div class="program-row"><b>Mon</b><span>Heavy Bench · Row · Face Pull</span></div>
+              <div class="program-row"><b>Tue</b><span>Heavy Squat · Hip Hinge · Core</span></div>
+              <div class="program-row"><b>Wed</b><span>Carry · Mobility · Upper Back</span></div>
+              <div class="program-row"><b>Thu</b><span>Bench Volume · Chinup/Pulldown</span></div>
+              <div class="program-row"><b>Fri</b><span>Squat Volume · Split Squat · Calves</span></div>
+              <div class="program-row"><b>Sat</b><span>Swing or Carry · Core · Stretch</span></div>
+            </div>
+          </article>
+          <article class="card program-card">
+            <div class="badge-row"><span class="tag youth">Teen Athlete</span><span class="tag power">Technique</span></div>
+            <h3>Foundation A/B</h3>
+            <p>Three nonconsecutive days per week. Rotate A and B. Teach squat, hinge, push, pull, landing, and trunk control.</p>
+            <div class="program-table">
+              <div class="program-row"><b>A1</b><span>Goblet Squat · Pushup · Inverted Row</span></div>
+              <div class="program-row"><b>A2</b><span>Hip Raise · Split Squat · Plank</span></div>
+              <div class="program-row"><b>B1</b><span>Stepup · Dumbbell Row · Shoulder Stability</span></div>
+              <div class="program-row"><b>B2</b><span>Hinge Drill · Carry · Landing Practice</span></div>
+            </div>
+          </article>
+          <article class="card program-card">
+            <div class="badge-row"><span class="tag student">Student Energy</span><span class="tag mobility">10 minutes</span></div>
+            <h3>Desk Reset</h3>
+            <p>For students or adults working long hours. Use between study blocks or as a non-fatiguing movement break.</p>
+            <div class="program-table">
+              <div class="program-row"><b>1</b><span>Cat Camel · 5–8 smooth reps</span></div>
+              <div class="program-row"><b>2</b><span>Wall Slide · 8–10 reps</span></div>
+              <div class="program-row"><b>3</b><span>Hip Flexor Stretch · 30 sec/side</span></div>
+              <div class="program-row"><b>4</b><span>Bird Dog · 4 holds/side</span></div>
+              <div class="program-row"><b>5</b><span>Incline Pushup or Inverted Row · easy set</span></div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="library">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Exercise library</div>
+            <h2>Search by body part, pattern, equipment, level, or client track.</h2>
+          </div>
+          <p class="section-note">Click any card for coaching cues. Star useful exercises, then add exercises to the lesson tray for a client-facing session note.</p>
+        </div>
+        <div class="library-panel">
+          <div class="filters">
+            <input id="search" type="search" placeholder="Search exercises, muscles, cues, sources…" />
+            <select id="groupFilter"><option value="all">All groups</option></select>
+            <select id="patternFilter"><option value="all">All patterns</option></select>
+            <select id="equipmentFilter"><option value="all">All equipment</option></select>
+            <select id="levelFilter"><option value="all">All levels</option></select>
+            <select id="trackFilter"><option value="all">All tracks</option></select>
+          </div>
+          <div class="filter-tools">
+            <span class="count" id="count">Loading exercises…</span>
+            <div class="small-actions">
+              <button class="mini-btn" id="resetFilters" type="button">Reset filters</button>
+              <button class="mini-btn" id="showFavorites" type="button">Show favorites</button>
+            </div>
+          </div>
+          <div class="cards" id="cards"></div>
+          <div class="pagination">
+            <button id="prevPage" type="button">← Previous</button>
+            <button id="nextPage" type="button">Next →</button>
+            <span class="mini-btn" id="pageInfo">Page 1</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="coach">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Coach notes</div>
+            <h2>Old-school bodybuilding discipline, modern durability language.</h2>
+          </div>
+          <p class="section-note">The Emrick-style lens belongs here: feel the target muscle, control the negative, respect the joint, and teach the student to own the rep.</p>
+        </div>
+        <div class="script">
+          <div class="script-step"><b>STEP 01</b><h3>Assess</h3><p>Observe squat, hinge, push, pull, plank, and shoulder motion. Start where the client actually is.</p></div>
+          <div class="script-step"><b>STEP 02</b><h3>Anchor</h3><p>Choose one main lift or movement pattern. Give it the freshest attention and best coaching.</p></div>
+          <div class="script-step"><b>STEP 03</b><h3>Balance</h3><p>Pair pressing with pulling, squatting with hinging, and heavy work with mobility or stability.</p></div>
+          <div class="script-step"><b>STEP 04</b><h3>Progress</h3><p>Add load, range, reps, or density only when form stays clean and recovery remains good.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="sources">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Source library</div>
+            <h2>Three complementary layers.</h2>
+          </div>
+          <p class="section-note">The beta atlas blends exercise variety, practical instruction, and scientific program design into a consulting tool.</p>
+        </div>
+        <div class="source-grid">
+          <article class="source-card"><span class="source-type">Exercise catalog</span><h3>The Men’s Health Big Book of Exercises</h3><p>Primary source for exercise families, variations, warmup movements, and quick workout ideas.</p></article>
+          <article class="source-card"><span class="source-type">Practical instruction</span><h3>Weight Training for Dummies</h3><p>Useful for teaching form, equipment choices, basic workouts, safety, logs, and special client situations.</p></article>
+          <article class="source-card"><span class="source-type">Scientific frame</span><h3>Resistance Training Methods</h3><p>Program design, force production, resistance methods, periodization, youth training, older adults, and injury-risk reduction.</p></article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <aside class="drawer collapsed" id="lessonTray" aria-label="Lesson tray">
+    <div class="drawer-head"><b>Lesson tray · <span id="trayCount">0</span></b><button class="drawer-toggle" id="toggleTray" type="button">▴</button></div>
+    <div class="drawer-body"><div class="tray-list" id="trayList"></div></div>
+    <div class="drawer-actions"><button class="mini-btn" id="copyTray" type="button">Copy lesson</button><button class="mini-btn" id="clearTray" type="button">Clear</button></div>
+  </aside>
+
+  <dialog id="exerciseModal">
+    <div class="modal-head">
+      <button class="close" id="closeModal" aria-label="Close detail panel">×</button>
+      <h2 id="modalTitle">Exercise</h2>
+      <p id="modalSubtitle">Pattern and source</p>
+    </div>
+    <div class="modal-body">
+      <div class="detail-meta" id="modalMeta"></div>
+      <div class="detail-grid">
+        <div class="detail-box"><h4>Purpose</h4><p id="modalPurpose"></p></div>
+        <div class="detail-box"><h4>Use with care</h4><p id="modalCaution"></p></div>
+      </div>
+      <div class="detail-box" style="margin-top:14px"><h4>Coaching cues</h4><ul id="modalCues"></ul></div>
+      <div style="margin-top:16px"><button class="btn btn-dark" id="addToTray" type="button">Add to lesson tray</button></div>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <footer class="footer">
+    <div class="wrap footer-grid">
+      <div>
+        <strong>ThoughtMuseum Strength Atlas</strong>
+        <p>Beta release for consulting, teaching, and client-facing exercise selection. Built for short, durable, repeatable strength sessions.</p>
+      </div>
+      <div>
+        <strong>Training note</strong>
+        <p>Exercise involves risk. Use appropriate loads, maintained equipment, good technique, and individualized judgment. Clients with medical concerns should seek qualified professional guidance.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="data/exercises.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>
