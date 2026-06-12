@@ -46,3 +46,72 @@ section{padding:44px 0}.section-head{display:flex;align-items:flex-end;justify-c
 dialog{border:0;border-radius:28px;padding:0;width:min(790px,calc(100% - 34px));box-shadow:var(--shadow);background:#fff;color:var(--ink)}dialog::backdrop{background:rgba(8,23,36,.48);backdrop-filter:blur(4px)}.modal-head{background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;padding:25px 28px;position:relative}.modal-head h2{margin:0;font-size:1.9rem;letter-spacing:-.04em}.modal-head p{margin:6px 0 0;color:rgba(255,255,255,.78)}.close{position:absolute;right:16px;top:14px;width:36px;height:36px;border:0;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;font-size:1.4rem;cursor:pointer}.modal-body{padding:24px 28px}.detail-meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.detail-box{border:1px solid var(--line);border-radius:20px;padding:16px;background:#f8fcfd}.detail-box h4{margin:0 0 10px;color:var(--navy)}.detail-box ul{margin:0;padding-left:18px;color:var(--muted);line-height:1.5}.detail-box p{margin:0;color:var(--muted);line-height:1.5}.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:12px 18px;border-radius:999px;box-shadow:var(--shadow);opacity:0;pointer-events:none;z-index:120;transition:all .22s ease}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 @media(max-width:980px){.hero-grid,.builder,.footer-grid{grid-template-columns:1fr}.grid-4,.grid-3,.source-grid,.cards{grid-template-columns:repeat(2,1fr)}.filters{grid-template-columns:1fr 1fr}.script{grid-template-columns:repeat(2,1fr)}.section-head{display:block}.section-note{margin-top:10px}.status-stack{grid-template-rows:auto}.drawer{position:static;width:auto;margin:18px auto 0}.drawer.collapsed .drawer-body,.drawer.collapsed .drawer-actions{display:block}.drawer-toggle{display:none}}
 @media(max-width:650px){.wrap{width:min(100% - 24px,1210px)}.nav{align-items:flex-start}.navlinks{display:none}.hero{padding-top:30px}.hero-card{border-radius:26px;min-height:auto}.metric-row,.grid-4,.grid-3,.grid-2,.source-grid,.cards,.filters,.script,.detail-grid{grid-template-columns:1fr}.program-row{grid-template-columns:1fr}.hero h1{font-size:2.65rem}.modal-body,.modal-head{padding:21px}.drawer{border-radius:22px}}
+
+/* ============================================================
+   Phase 3 restorations — prototype visual language brought back
+   into the production atlas (card watermark, track chips,
+   movement-pattern navigation). Appended last so it layers
+   cleanly over the existing cascade.
+   ============================================================ */
+
+/* Signature pattern-letter watermark on each exercise card */
+.exercise-card{position:relative;overflow:hidden}
+.exercise-card::before{content:attr(data-pattern-letter);position:absolute;right:10px;top:-6px;font-size:5.6rem;font-weight:950;line-height:1;letter-spacing:-.08em;color:rgba(18,167,162,.07);pointer-events:none;z-index:0}
+.exercise-card>div{position:relative;z-index:1}
+.exercise-card .tag-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+
+/* One-tap client-track quick filters */
+.quick-filters{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.chip{border:1px solid var(--line);background:#fff;color:#315d76;padding:8px 12px;border-radius:999px;cursor:pointer;font-weight:850;font-size:.82rem;transition:background .16s ease,color .16s ease,transform .16s ease}
+.chip:hover{transform:translateY(-1px)}
+.chip.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+/* Movement-pattern navigation grid */
+.pattern-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.pattern-card{position:relative;overflow:hidden;text-align:left;background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--soft);cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
+.pattern-card:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:rgba(18,167,162,.35)}
+.pattern-card .big{font-family:var(--serif);font-size:2.6rem;line-height:1;color:rgba(18,167,162,.22);font-weight:900}
+.pattern-card h3{margin:8px 0 6px;color:var(--navy);font-size:1.06rem;letter-spacing:-.02em}
+.pattern-card p{margin:0 0 10px;color:var(--muted);line-height:1.42;font-size:.86rem}
+.pattern-card .pattern-count{display:inline-flex;align-items:center;gap:6px;font-size:.74rem;font-weight:900;color:#0b7772;background:#e7fbf7;border:1px solid rgba(18,167,162,.18);border-radius:999px;padding:5px 9px}
+@media(max-width:980px){.pattern-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:650px){.pattern-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:460px){.pattern-grid{grid-template-columns:1fr}}
+
+/* ---- Movement-pattern family colour system ----
+   One accent var drives the card's top rule, watermark tint, pattern badge,
+   and the matching pattern-nav card. Keeps the atlas colour-coded by function. */
+.exercise-card.fam-push,   .pattern-card.fam-push    {--accent:var(--blue)}
+.exercise-card.fam-pull,   .pattern-card.fam-pull    {--accent:var(--teal)}
+.exercise-card.fam-squat,  .pattern-card.fam-squat   {--accent:var(--gold)}
+.exercise-card.fam-hinge,  .pattern-card.fam-hinge   {--accent:var(--orange)}
+.exercise-card.fam-carry,  .pattern-card.fam-carry   {--accent:var(--purple)}
+.exercise-card.fam-mobility,.pattern-card.fam-mobility{--accent:var(--green)}
+.exercise-card.fam-powerarms,.pattern-card.fam-powerarms{--accent:var(--rose)}
+.exercise-card.fam-other,  .pattern-card.fam-other   {--accent:var(--rose)}
+
+/* Richer, colour-indexed exercise card */
+.exercise-card{--accent:var(--teal);border-top:3px solid var(--accent);background:linear-gradient(180deg,#ffffff 0%,#f7fcfd 100%)}
+.exercise-card .pattern-tag{border:1px solid var(--accent);color:var(--navy);background:#fff}
+.exercise-card.fam-push::before    {color:rgba(31,95,129,.09)}
+.exercise-card.fam-squat::before   {color:rgba(193,150,40,.14)}
+.exercise-card.fam-hinge::before   {color:rgba(237,138,74,.12)}
+.exercise-card.fam-carry::before   {color:rgba(132,111,232,.11)}
+.exercise-card.fam-mobility::before{color:rgba(94,185,132,.14)}
+.exercise-card.fam-powerarms::before{color:rgba(230,102,114,.11)}
+.exercise-card.fam-other::before   {color:rgba(230,102,114,.10)}
+
+/* Actively-filtered client track stands out on every card */
+.tag.track-active{background:var(--navy);color:#fff;border-color:var(--navy);box-shadow:0 4px 10px rgba(9,31,52,.18)}
+
+/* Pattern-nav cards inherit the family accent + a selected state */
+.pattern-card{--accent:var(--teal);border-top:3px solid var(--accent)}
+.pattern-card .big{color:var(--accent);opacity:.30}
+.pattern-card.selected{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent),var(--shadow)}
+
+/* ---- Nautical / oceanic chart texture ----
+   Faint repeating wave layered over the navy hero and footer. */
+.hero-card{background-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='84'%20height='42'%3E%3Cpath%20d='M0%2028%20Q21%2014%2042%2028%20T84%2028'%20fill='none'%20stroke='rgba(255,255,255,0.06)'%20stroke-width='1.4'/%3E%3C/svg%3E"),linear-gradient(145deg,rgba(14,38,62,.98),rgba(22,86,114,.95))}
+.footer{background-color:var(--deep);background-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='84'%20height='42'%3E%3Cpath%20d='M0%2028%20Q21%2014%2042%2028%20T84%2028'%20fill='none'%20stroke='rgba(255,255,255,0.05)'%20stroke-width='1.3'/%3E%3C/svg%3E")}
+.hero h1{text-shadow:0 2px 22px rgba(0,0,0,.20)}
+.eyebrow{backdrop-filter:blur(4px)}

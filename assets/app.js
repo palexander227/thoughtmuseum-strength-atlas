@@ -1,7 +1,37 @@
 const exercises = window.EXERCISE_DATA || [];
 const pageSize = 48;
+const libraryCount = exercises.filter(e => e.level !== 'Coach' && !(e.tracks || []).includes('Coach Toolkit')).length;
 let page = 1;
-const state = { q:'', group:'all', pattern:'all', equipment:'all', level:'all', track:'all' };
+const state = { q:'', group:'all', pattern:'all', equipment:'all', level:'all', track:'all', patternFamily:null };
+
+// Client-track display order (chips + dropdown read the same set).
+const TRACK_ORDER = ['Teen Athlete', 'Student Energy', 'Adult Strength', '50+ Durability', 'Coach Toolkit'];
+
+// The prototype's clean six movement-pattern families. Each maps to one or
+// more raw patterns in the data so the messy taxonomy stays navigable.
+const PATTERN_FAMILIES = [
+  { key:'Push',     letter:'P', label:'Push',                  patterns:['Push'],
+    blurb:'Bench, pushup, overhead press. Balance with enough pulling.' },
+  { key:'Pull',     letter:'R', label:'Pull',                  patterns:['Pull'],
+    blurb:'Rows, pulldowns, chinups, face pulls. Posture and shoulder health.' },
+  { key:'Squat',    letter:'S', label:'Squat',                 patterns:['Squat'],
+    blurb:'Knee-dominant leg strength. Back, goblet, and split squats.' },
+  { key:'Hinge',    letter:'H', label:'Hinge',                 patterns:['Hinge'],
+    blurb:'Posterior-chain strength. Deadlift, RDL, hip raise, swings.' },
+  { key:'Carry',    letter:'C', label:'Carry / Core Stability', patterns:['Core Stability','Carry / Grip','Rotation'],
+    blurb:'Grip, trunk stiffness, anti-rotation, and posture under load.' },
+  { key:'Mobility', letter:'M', label:'Mobility',              patterns:['Mobility','Warmup'],
+    blurb:'Warmups, resets, range preservation, and tissue quality.' },
+  { key:'PowerArms', letter:'A', label:'Power & Arms',         patterns:['Power','Arms'],
+    blurb:'Explosive hip drive and direct arm work — swings, throws, jumps, curls, extensions.' }
+];
+
+function familyOf(pattern){ return PATTERN_FAMILIES.find(f => f.patterns.includes(pattern)) || null; }
+function familyMeta(pattern){
+  const f = familyOf(pattern);
+  return f ? { cls:'fam-' + f.key.toLowerCase(), letter:f.letter }
+           : { cls:'fam-other', letter:((pattern || '').trim()[0] || 'E') };
+}
 const favorites = new Set(JSON.parse(localStorage.getItem('tm_strength_favorites') || '[]'));
 const tray = new Set(JSON.parse(localStorage.getItem('tm_strength_tray') || '[]'));
 
@@ -21,6 +51,23 @@ function showToast(msg){
   toast.textContent = msg;
   toast.classList.add('show');
   setTimeout(()=>toast.classList.remove('show'), 1700);
+}
+
+// Clipboard with a graceful fallback for file:// and non-secure contexts,
+// where navigator.clipboard is undefined and would throw silently.
+async function copyText(text){
+  try{
+    if(navigator.clipboard && window.isSecureContext){
+      await navigator.clipboard.writeText(text);
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly','');
+      ta.style.position = 'absolute'; ta.style.left = '-9999px';
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+    }
+    return true;
+  } catch(err){ return false; }
 }
 
 function tagClass(s=''){
@@ -55,6 +102,8 @@ function initFilters(){
     $('#'+id).addEventListener(id==='search'?'input':'change', (ev)=>{
       const key = id.replace('Filter','');
       state[key === 'search' ? 'q' : key] = ev.target.value;
+      if(id === 'trackFilter') setActiveChip(ev.target.value);
+      if(id === 'patternFilter') clearPatternFamily(); // exact-pattern overrides a family pick
       page = 1;
       renderCards();
     });
@@ -68,18 +117,84 @@ function initFilters(){
 }
 
 function resetFilters(){
-  Object.assign(state,{q:'',group:'all',pattern:'all',equipment:'all',level:'all',track:'all'});
+  Object.assign(state,{q:'',group:'all',pattern:'all',equipment:'all',level:'all',track:'all',patternFamily:null});
   $('#search').value='';
   ['groupFilter','patternFilter','equipmentFilter','levelFilter','trackFilter'].forEach(id=>$('#'+id).value='all');
+  setActiveChip('all');
+  clearPatternFamily();
   page=1; renderCards();
 }
 
+function clearPatternFamily(){
+  state.patternFamily = null;
+  $$('#patternGrid .pattern-card').forEach(c=>c.classList.remove('selected'));
+}
+
+function setActiveChip(track){
+  $$('#trackChips .chip').forEach(c=>c.classList.toggle('active', c.dataset.track === track));
+}
+
+function initChips(){
+  const chipsEl = $('#trackChips');
+  if(!chipsEl) return;
+  // Fixed, audience-logical order; only render tracks that exist in the data,
+  // then append any unexpected tracks so nothing is silently dropped.
+  const present = new Set(exercises.flatMap(e=>e.tracks));
+  const ordered = TRACK_ORDER.filter(t=>present.has(t));
+  const extras = [...present].filter(t=>!TRACK_ORDER.includes(t)).sort((a,b)=>a.localeCompare(b));
+  const tracks = ['all', ...ordered, ...extras];
+  chipsEl.innerHTML = tracks.map(t=>
+    `<button type="button" class="chip ${t==='all'?'active':''}" data-track="${t}">${t==='all'?'All client tracks':t}</button>`
+  ).join('');
+  chipsEl.addEventListener('click', ev=>{
+    const btn = ev.target.closest('.chip');
+    if(!btn) return;
+    state.track = btn.dataset.track;
+    $('#trackFilter').value = btn.dataset.track;
+    setActiveChip(btn.dataset.track);
+    page = 1; renderCards();
+  });
+}
+
+function initPatterns(){
+  const grid = $('#patternGrid');
+  if(!grid) return;
+  const pool = exercises.filter(e=>!isCoachTool(e));
+  grid.innerHTML = PATTERN_FAMILIES.map(f=>{
+    const n = pool.filter(e=>f.patterns.includes(e.pattern)).length;
+    return `
+    <button type="button" class="pattern-card fam-${f.key.toLowerCase()}" data-family="${f.key}" aria-label="Filter library to ${f.label} (${n} exercises)">
+      <div class="big">${f.letter}</div>
+      <h3>${f.label}</h3>
+      <p>${f.blurb}</p>
+      <span class="pattern-count">${n} exercises</span>
+    </button>`;
+  }).join('');
+  grid.addEventListener('click', ev=>{
+    const btn = ev.target.closest('.pattern-card');
+    if(!btn) return;
+    const fam = PATTERN_FAMILIES.find(f=>f.key === btn.dataset.family);
+    if(!fam) return;
+    resetFilters();
+    state.patternFamily = fam.patterns;
+    $$('#patternGrid .pattern-card').forEach(c=>c.classList.toggle('selected', c === btn));
+    page = 1; renderCards();
+    document.getElementById('library').scrollIntoView({behavior:'smooth', block:'start'});
+  });
+}
+
+function isCoachTool(e){ return e.level === 'Coach' || (e.tracks || []).includes('Coach Toolkit'); }
+
 function match(e){
   if(state.q === '__favorites__') return favorites.has(e.id);
+  // Coaching rules are not exercises: keep them out of the general library
+  // unless the user explicitly asks for the Coach Toolkit track.
+  if(isCoachTool(e) && state.track !== 'Coach Toolkit') return false;
   const hay = [e.name,e.group,e.pattern,e.equipment,e.level,e.source,e.purpose,e.caution,...e.tracks,...e.cues].join(' ').toLowerCase();
   return (!state.q || hay.includes(state.q.toLowerCase())) &&
     (state.group === 'all' || e.group === state.group) &&
     (state.pattern === 'all' || e.pattern === state.pattern) &&
+    (!state.patternFamily || state.patternFamily.includes(e.pattern)) &&
     (state.equipment === 'all' || e.equipment === state.equipment) &&
     (state.level === 'all' || e.level === state.level) &&
     (state.track === 'all' || e.tracks.includes(state.track));
@@ -91,7 +206,8 @@ function renderCards(){
   if(page > totalPages) page = totalPages;
   const slice = all.slice((page-1)*pageSize, page*pageSize);
   cardsEl.innerHTML = '';
-  countEl.textContent = `Showing ${all.length} of ${exercises.length} atlas entries`;
+  const denom = state.track === 'Coach Toolkit' ? exercises.length : libraryCount;
+  countEl.textContent = `Showing ${all.length} of ${denom} atlas entries`;
   pageInfo.textContent = `Page ${page} of ${totalPages}`;
   prevBtn.disabled = page <= 1;
   nextBtn.disabled = page >= totalPages;
@@ -101,15 +217,25 @@ function renderCards(){
   }
   slice.forEach(e=>{
     const card = document.createElement('article');
-    card.className = 'exercise-card';
+    const fam = familyMeta(e.pattern);
+    card.className = 'exercise-card ' + fam.cls;
+    card.dataset.patternLetter = fam.letter;
     const fav = favorites.has(e.id);
     const selected = tray.has(e.id);
+    // Surface the actively-filtered track first and style it prominently.
+    let tracks = e.tracks || [];
+    const activeTrack = state.track !== 'all' && tracks.includes(state.track);
+    if(activeTrack) tracks = [state.track, ...tracks.filter(t=>t!==state.track)];
+    const trackBadges = tracks.slice(0, 3).map(t => {
+      const on = activeTrack && t === state.track;
+      return `<span class="tag ${tagClass(t)}${on ? ' track-active' : ''}">${t}</span>`;
+    }).join('');
     card.innerHTML = `
       <div>
         <div class="tag-row">
-          <span class="tag ${tagClass(e.pattern)}">${e.pattern}</span>
-          <span class="tag ${tagClass(e.tracks[0])}">${e.tracks[0] || 'General'}</span>
-          <button class="star ${fav?'on':''}" title="Save favorite" data-fav="${e.id}">${fav?'★':'☆'}</button>
+          <span class="tag pattern-tag ${tagClass(e.pattern)}">${e.pattern}</span>
+          ${trackBadges}
+          <button class="star ${fav?'on':''}" title="Save favorite" aria-label="Save ${e.name} to favorites" data-fav="${e.id}">${fav?'★':'☆'}</button>
         </div>
         <h3>${e.name}</h3>
         <p>${e.purpose}</p>
@@ -178,8 +304,8 @@ function trayText(){
 function initTray(){
   $('#toggleTray').addEventListener('click',()=>$('#lessonTray').classList.toggle('collapsed'));
   $('#copyTray').addEventListener('click', async()=>{
-    await navigator.clipboard.writeText(trayText());
-    showToast('Lesson tray copied');
+    const ok = await copyText(trayText());
+    showToast(ok ? 'Lesson tray copied' : 'Copy unavailable — select the text manually');
   });
   $('#clearTray').addEventListener('click',()=>{ tray.clear(); localStorage.setItem('tm_strength_tray','[]'); renderTray(); renderCards(); showToast('Lesson tray cleared'); });
   renderTray();
@@ -225,7 +351,7 @@ function generateSession(){
     <ol>${session.map(e=>`<li><b>${e.name}</b><br><span style="color:var(--muted)">${e.pattern} • ${e.equipment} • ${e.cues[0]}</span></li>`).join('')}</ol>
     <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap"><button class="mini-btn" id="loadSession">Load into lesson tray</button><button class="mini-btn" id="copySession">Copy session</button></div>`;
   $('#loadSession').addEventListener('click',()=>{ session.forEach(e=>tray.add(e.id)); localStorage.setItem('tm_strength_tray', JSON.stringify([...tray])); renderTray(); renderCards(); showToast('Session loaded'); });
-  $('#copySession').addEventListener('click',async()=>{ await navigator.clipboard.writeText(`ThoughtMuseum Strength Atlas Session\n${track} — ${emphasis}\n${time} minutes\n\n` + session.map((e,i)=>`${i+1}. ${e.name} — ${e.pattern} — ${e.equipment}`).join('\n')); showToast('Session copied'); });
+  $('#copySession').addEventListener('click',async()=>{ const ok = await copyText(`ThoughtMuseum Strength Atlas Session\n${track} — ${emphasis}\n${time} minutes\n\n` + session.map((e,i)=>`${i+1}. ${e.name} — ${e.pattern} — ${e.equipment}`).join('\n')); showToast(ok ? 'Session copied' : 'Copy unavailable — select the text manually'); });
 }
 
 function initBuilder(){
@@ -234,18 +360,25 @@ function initBuilder(){
 }
 
 function initCounts(){
-  $('#exerciseTotal').textContent = exercises.length;
+  $('#exerciseTotal').textContent = libraryCount;
   $('#patternTotal').textContent = uniq(exercises.map(e=>e.pattern)).length;
   $('#trackTotal').textContent = uniq(exercises.flatMap(e=>e.tracks)).length;
 }
 
-prevBtn.addEventListener('click',()=>{ page=Math.max(1,page-1); renderCards(); });
-nextBtn.addEventListener('click',()=>{ page=page+1; renderCards(); });
+function gotoPage(p){
+  page = Math.max(1, p);
+  renderCards();
+  document.getElementById('library').scrollIntoView({behavior:'smooth', block:'start'});
+}
+prevBtn.addEventListener('click',()=>gotoPage(page-1));
+nextBtn.addEventListener('click',()=>gotoPage(page+1));
 $('#closeModal').addEventListener('click',()=>modal.close());
 modal.addEventListener('click',(ev)=>{ if(ev.target === modal) modal.close(); });
 
 initCounts();
 initFilters();
+initChips();
+initPatterns();
 initTray();
 initBuilder();
 renderCards();

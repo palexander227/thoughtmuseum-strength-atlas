@@ -21,6 +21,7 @@
         <a href="#library">Library</a>
         <a href="#builder">Session Builder</a>
         <a href="#programs">Programs</a>
+        <a href="#patterns">Patterns</a>
         <a href="#tracks">Client Tracks</a>
         <a href="#coach">Coach Notes</a>
         <a href="#sources">Sources</a>
@@ -190,6 +191,19 @@
       </div>
     </section>
 
+    <section id="patterns">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Movement-pattern literacy</div>
+            <h2>Train the body by function, not just by muscle.</h2>
+          </div>
+          <p class="section-note">The pattern layer prevents random exercise selection. Pick a pattern to jump into the library filtered to it — pushing, pulling, squatting, hinging, carrying, and resetting.</p>
+        </div>
+        <div class="pattern-grid" id="patternGrid"></div>
+      </div>
+    </section>
+
     <section id="library">
       <div class="wrap">
         <div class="section-head">
@@ -201,13 +215,14 @@
         </div>
         <div class="library-panel">
           <div class="filters">
-            <input id="search" type="search" placeholder="Search exercises, muscles, cues, sources…" />
-            <select id="groupFilter"><option value="all">All groups</option></select>
-            <select id="patternFilter"><option value="all">All patterns</option></select>
-            <select id="equipmentFilter"><option value="all">All equipment</option></select>
-            <select id="levelFilter"><option value="all">All levels</option></select>
-            <select id="trackFilter"><option value="all">All tracks</option></select>
+            <input id="search" type="search" aria-label="Search exercises" placeholder="Search exercises, muscles, cues, sources…" />
+            <select id="groupFilter" aria-label="Filter by muscle group"><option value="all">All groups</option></select>
+            <select id="patternFilter" aria-label="Filter by movement pattern"><option value="all">All patterns</option></select>
+            <select id="equipmentFilter" aria-label="Filter by equipment"><option value="all">All equipment</option></select>
+            <select id="levelFilter" aria-label="Filter by level"><option value="all">All levels</option></select>
+            <select id="trackFilter" aria-label="Filter by client track"><option value="all">All tracks</option></select>
           </div>
+          <div class="quick-filters" id="trackChips" aria-label="Client track quick filters"></div>
           <div class="filter-tools">
             <span class="count" id="count">Loading exercises…</span>
             <div class="small-actions">
