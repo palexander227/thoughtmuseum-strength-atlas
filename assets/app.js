@@ -169,10 +169,23 @@ function initPatterns(){
       <p>${f.blurb}</p>
       <span class="pattern-count">${n} exercises</span>
     </button>`;
-  }).join('');
+  }).join('') + `
+    <button type="button" class="pattern-card surprise-card" data-random="1" aria-label="Open a random exercise from the atlas">
+      <div class="big">?</div>
+      <h3>Surprise Me</h3>
+      <p>Not sure where to start? Open a random exercise from across the atlas.</p>
+      <span class="pattern-count">Random pick</span>
+    </button>`;
   grid.addEventListener('click', ev=>{
     const btn = ev.target.closest('.pattern-card');
     if(!btn) return;
+    if(btn.classList.contains('surprise-card')){
+      if(!pool.length) return;
+      const pick = pool[Math.floor(Math.random() * pool.length)];
+      openDetail(pick);
+      showToast('Surprise: ' + pick.name);
+      return;
+    }
     const fam = PATTERN_FAMILIES.find(f=>f.key === btn.dataset.family);
     if(!fam) return;
     resetFilters();
