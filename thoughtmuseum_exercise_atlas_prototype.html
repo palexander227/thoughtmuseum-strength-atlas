@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ThoughtMuseum Strength Atlas | Exercise Library Prototype</title>
+  <style>
+    :root {
+      --navy: #102238;
+      --deep: #0b1728;
+      --blue: #1e5a7a;
+      --teal: #15a6a6;
+      --aqua: #9ee7df;
+      --mint: #d9fff7;
+      --paper: #f7fbfd;
+      --ink: #1e2a32;
+      --muted: #64717d;
+      --line: rgba(20, 75, 105, 0.18);
+      --gold: #f5c451;
+      --rose: #e76868;
+      --green: #58b781;
+      --card: #ffffff;
+      --shadow: 0 18px 45px rgba(9, 31, 52, 0.14);
+      --softshadow: 0 10px 28px rgba(9, 31, 52, 0.10);
+      --radius: 22px;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --serif: Georgia, "Times New Roman", serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 15% 10%, rgba(158, 231, 223, 0.42), transparent 26rem),
+        radial-gradient(circle at 90% 5%, rgba(245, 196, 81, 0.18), transparent 24rem),
+        linear-gradient(180deg, #edf9fb 0%, #f7fbfd 45%, #eef7fa 100%);
+      min-height: 100vh;
+    }
+
+    a { color: inherit; }
+    .wrap { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(16px);
+      background: rgba(247, 251, 253, 0.78);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+      gap: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: max-content;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--navy), var(--teal));
+      color: white;
+      box-shadow: var(--softshadow);
+      font-weight: 900;
+      letter-spacing: -0.08em;
+    }
+
+    .brand-text strong { display: block; color: var(--navy); line-height: 1.05; }
+    .brand-text span { font-size: 0.78rem; color: var(--muted); }
+
+    .navlinks {
+      display: flex;
+      gap: 14px;
+      font-size: 0.9rem;
+      color: #2a526c;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .navlinks a { text-decoration: none; padding: 8px 10px; border-radius: 999px; }
+    .navlinks a:hover { background: rgba(21, 166, 166, 0.10); }
+
+    .hero { padding: 64px 0 34px; }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 30px;
+      align-items: stretch;
+    }
+
+    .hero-card {
+      background: linear-gradient(145deg, rgba(16,34,56,0.97), rgba(21, 82, 107, 0.95));
+      border-radius: 34px;
+      color: white;
+      padding: clamp(28px, 4vw, 50px);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+      min-height: 430px;
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      width: 480px;
+      height: 480px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(158,231,223,0.34), transparent 62%);
+      right: -180px;
+      top: -120px;
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -40px -110px auto;
+      width: 360px;
+      height: 260px;
+      background:
+        linear-gradient(90deg, transparent 0 18%, rgba(255,255,255,0.09) 18% 20%, transparent 20% 38%, rgba(255,255,255,0.08) 38% 40%, transparent 40% 58%, rgba(255,255,255,0.07) 58% 60%, transparent 60%),
+        radial-gradient(ellipse at bottom, rgba(255,255,255,0.14), transparent 60%);
+      transform: rotate(-8deg);
+      opacity: 0.8;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(255,255,255,0.22);
+      background: rgba(255,255,255,0.08);
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      letter-spacing: 0.02em;
+      position: relative;
+      z-index: 2;
+    }
+
+    h1 {
+      position: relative;
+      z-index: 2;
+      font-size: clamp(2.45rem, 6vw, 5.1rem);
+      line-height: 0.92;
+      margin: 24px 0 18px;
+      letter-spacing: -0.07em;
+      max-width: 780px;
+    }
+
+    .hero-card p {
+      position: relative;
+      z-index: 2;
+      max-width: 720px;
+      font-size: 1.08rem;
+      line-height: 1.65;
+      color: rgba(255,255,255,0.83);
+    }
+
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; position: relative; z-index: 2; }
+    .btn {
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-weight: 800;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+      font-size: 0.95rem;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary { background: var(--mint); color: var(--navy); box-shadow: 0 14px 28px rgba(0,0,0,0.18); }
+    .btn-ghost { color: white; border: 1px solid rgba(255,255,255,0.24); background: rgba(255,255,255,0.06); }
+
+    .stats-panel {
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .mini-card {
+      background: rgba(255,255,255,0.88);
+      border: 1px solid rgba(255,255,255,0.75);
+      border-radius: 30px;
+      padding: 26px;
+      box-shadow: var(--softshadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mini-card h3 { margin: 0 0 10px; color: var(--navy); font-size: 1.2rem; }
+    .mini-card p { margin: 0; color: var(--muted); line-height: 1.5; }
+
+    .metric-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; }
+    .metric {
+      background: #f2fbfb;
+      border: 1px solid var(--line);
+      padding: 13px 10px;
+      border-radius: 18px;
+      text-align: center;
+    }
+    .metric strong { display: block; font-size: 1.4rem; color: var(--teal); }
+    .metric span { display: block; font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+    .anatomy-line {
+      margin-top: 18px;
+      display: grid;
+      gap: 9px;
+    }
+    .anatomy-row { display: grid; grid-template-columns: 70px 1fr; align-items: center; gap: 10px; font-size: 0.82rem; color: #36556a; }
+    .bar { height: 10px; border-radius: 999px; background: #e4eff3; overflow: hidden; }
+    .bar span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--teal), var(--gold)); }
+
+    section { padding: 44px 0; }
+    .section-head { display: flex; justify-content: space-between; gap: 28px; align-items: end; margin-bottom: 22px; }
+    .section-kicker { color: var(--teal); font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; font-size: 0.76rem; }
+    h2 { margin: 6px 0 0; font-size: clamp(1.85rem, 3.6vw, 3rem); line-height: 1.03; color: var(--navy); letter-spacing: -0.055em; }
+    .section-note { max-width: 520px; color: var(--muted); line-height: 1.55; }
+
+    .source-grid, .track-grid, .pattern-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .source, .track, .pattern-card, .plan-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--softshadow);
+    }
+    .source h3, .track h3, .pattern-card h3, .plan-card h3 { margin: 0 0 10px; color: var(--navy); }
+    .source p, .track p, .pattern-card p, .plan-card p { margin: 0; color: var(--muted); line-height: 1.52; }
+    .badge {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #eef8fa;
+      color: var(--blue);
+      border: 1px solid var(--line);
+      font-weight: 800;
+      font-size: 0.75rem;
+      margin-bottom: 14px;
+    }
+
+    .track-grid { grid-template-columns: repeat(4, 1fr); }
+    .track { min-height: 226px; display: flex; flex-direction: column; justify-content: space-between; }
+    .track .icon { font-size: 2rem; margin-bottom: 10px; }
+    .track ul { padding-left: 18px; margin: 14px 0 0; color: var(--muted); line-height: 1.6; font-size: 0.92rem; }
+
+    .library-shell {
+      background: rgba(255,255,255,0.70);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      border-radius: 32px;
+      padding: 20px;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: 1.2fr 0.85fr 0.85fr 0.85fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .filters input, .filters select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 13px 14px;
+      background: white;
+      color: var(--ink);
+      font: inherit;
+      outline: none;
+    }
+    .filters input:focus, .filters select:focus { border-color: rgba(21,166,166,0.62); box-shadow: 0 0 0 4px rgba(21,166,166,0.12); }
+
+    .quick-filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 20px; }
+    .chip {
+      border: 1px solid var(--line);
+      background: white;
+      color: #356277;
+      padding: 8px 11px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 0.82rem;
+    }
+    .chip.active, .chip:hover { background: var(--navy); color: white; }
+
+    .catalog-info { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 14px; color: var(--muted); font-size: 0.92rem; }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .exercise-card {
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 22px;
+      padding: 18px;
+      cursor: pointer;
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+      position: relative;
+      overflow: hidden;
+      min-height: 248px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .exercise-card:hover { transform: translateY(-3px); box-shadow: var(--softshadow); border-color: rgba(21,166,166,0.35); }
+    .exercise-card::before {
+      content: attr(data-pattern-letter);
+      position: absolute;
+      right: 12px;
+      top: 4px;
+      font-size: 6rem;
+      font-weight: 900;
+      color: rgba(21, 166, 166, 0.06);
+      letter-spacing: -0.08em;
+    }
+    .card-top { position: relative; z-index: 2; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .tag { font-size: 0.68rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; border-radius: 999px; padding: 5px 8px; background: #f0f7fa; color: #315870; }
+    .tag.strength { background: rgba(245,196,81,0.2); color: #7d5d12; }
+    .tag.durable { background: rgba(21,166,166,0.13); color: #0b7773; }
+    .tag.youth { background: rgba(88,183,129,0.15); color: #27704a; }
+    .exercise-card h3 { margin: 0 0 8px; color: var(--navy); font-size: 1.1rem; letter-spacing: -0.02em; }
+    .exercise-card p { margin: 0; color: var(--muted); line-height: 1.44; font-size: 0.91rem; }
+    .card-bottom { position: relative; z-index: 2; margin-top: 16px; display: flex; justify-content: space-between; align-items: center; color: #315870; font-size: 0.82rem; gap: 8px; }
+    .pill { border: 1px solid var(--line); padding: 6px 9px; border-radius: 999px; background: #fbfeff; }
+
+    .pattern-grid { grid-template-columns: repeat(6, 1fr); }
+    .pattern-card { padding: 18px; min-height: 170px; }
+    .pattern-card .big { font-size: 2.5rem; font-weight: 900; color: rgba(16,34,56,0.16); line-height: 1; }
+    .pattern-card h3 { font-size: 1.05rem; margin-top: 10px; }
+    .pattern-card p { font-size: 0.86rem; }
+
+    .plan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .plan-card h3 { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .plan-card h3 span { font-family: var(--mono); font-size: 0.75rem; color: var(--teal); background: #eefbfa; padding: 5px 8px; border-radius: 999px; }
+    .plan-list { display: grid; gap: 10px; margin-top: 16px; }
+    .day {
+      display: grid;
+      grid-template-columns: 76px 1fr;
+      gap: 12px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      background: #f8fcfd;
+      border-radius: 16px;
+      align-items: start;
+    }
+    .day strong { color: var(--navy); }
+    .day span { color: var(--muted); line-height: 1.45; }
+    .emrick-note {
+      background: linear-gradient(135deg, rgba(245,196,81,0.22), rgba(158,231,223,0.28));
+      border: 1px solid rgba(245,196,81,0.38);
+    }
+    .coach-script { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .script-step {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: var(--softshadow);
+    }
+    .script-step b { color: var(--teal); font-family: var(--mono); font-size: 0.78rem; }
+    .script-step h3 { margin: 8px 0; color: var(--navy); }
+    .script-step p { margin: 0; color: var(--muted); line-height: 1.5; font-size: 0.92rem; }
+
+    .footer {
+      margin-top: 40px;
+      padding: 34px 0 46px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .footer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .footer strong { color: var(--navy); }
+
+    dialog {
+      width: min(720px, calc(100% - 30px));
+      border: 0;
+      border-radius: 28px;
+      padding: 0;
+      box-shadow: 0 35px 90px rgba(0,0,0,.34);
+      overflow: hidden;
+      background: white;
+    }
+    dialog::backdrop { background: rgba(8, 18, 28, 0.58); backdrop-filter: blur(3px); }
+    .modal-head {
+      padding: 24px 26px;
+      background: linear-gradient(135deg, var(--navy), var(--blue));
+      color: white;
+      position: relative;
+    }
+    .modal-head h2 { color: white; margin: 0; font-size: 2rem; }
+    .modal-head p { color: rgba(255,255,255,.76); margin: 8px 0 0; line-height: 1.5; }
+    .close {
+      position: absolute;
+      right: 18px;
+      top: 18px;
+      border: 1px solid rgba(255,255,255,.25);
+      background: rgba(255,255,255,.08);
+      color: white;
+      width: 38px;
+      height: 38px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 900;
+    }
+    .modal-body { padding: 24px 26px 28px; }
+    .detail-grid { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 18px; }
+    .detail-box { border: 1px solid var(--line); background: #f8fcfd; border-radius: 18px; padding: 16px; }
+    .detail-box h4 { margin: 0 0 8px; color: var(--navy); }
+    .detail-box ul { margin: 0; padding-left: 18px; color: var(--muted); line-height: 1.55; }
+    .detail-meta { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0; }
+
+    @media (max-width: 980px) {
+      .hero-grid, .plan-grid, .footer-grid { grid-template-columns: 1fr; }
+      .source-grid, .cards { grid-template-columns: repeat(2, 1fr); }
+      .track-grid { grid-template-columns: repeat(2, 1fr); }
+      .pattern-grid { grid-template-columns: repeat(3, 1fr); }
+      .filters { grid-template-columns: 1fr 1fr; }
+      .coach-script { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 640px) {
+      .wrap { width: min(100% - 24px, 1180px); }
+      .nav { align-items: flex-start; flex-direction: column; }
+      .hero { padding-top: 34px; }
+      .hero-card { border-radius: 26px; min-height: auto; }
+      .metric-row, .source-grid, .track-grid, .cards, .pattern-grid, .filters, .coach-script, .detail-grid { grid-template-columns: 1fr; }
+      .section-head { flex-direction: column; align-items: start; }
+      .day { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap nav">
+      <div class="brand">
+        <div class="brand-mark">TM</div>
+        <div class="brand-text">
+          <strong>ThoughtMuseum Strength Atlas</strong>
+          <span>Exercise literacy • durability • coaching systems</span>
+        </div>
+      </div>
+      <nav class="navlinks" aria-label="Primary navigation">
+        <a href="#sources">Sources</a>
+        <a href="#tracks">Client Tracks</a>
+        <a href="#library">Exercise Library</a>
+        <a href="#patterns">Patterns</a>
+        <a href="#programs">Programs</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <article class="hero-card">
+          <div class="eyebrow">⚓ Prototype • student & client-facing exercise atlas</div>
+          <h1>Strength that stays useful.</h1>
+          <p>
+            A searchable teaching site for young athletes, busy students, adult clients, and 50+ lifters.
+            It blends classic bodybuilding craft with modern movement-pattern coaching: learn the muscle,
+            master the pattern, choose the right variation, and train with durable intent.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#library">Explore the library →</a>
+            <a class="btn btn-ghost" href="#programs">See sample programs</a>
+          </div>
+        </article>
+
+        <aside class="stats-panel">
+          <div class="mini-card">
+            <h3>Framework Goals</h3>
+            <p>Build an original, copyright-safe instructional site that references your library without reproducing book images or long passages.</p>
+            <div class="metric-row">
+              <div class="metric"><strong>48</strong><span>Starter moves</span></div>
+              <div class="metric"><strong>6</strong><span>Patterns</span></div>
+              <div class="metric"><strong>4</strong><span>Client tracks</span></div>
+            </div>
+          </div>
+          <div class="mini-card">
+            <h3>Balanced Training Map</h3>
+            <p>Use the atlas to ensure every program covers pushing, pulling, squatting, hinging, carrying, and spinal control.</p>
+            <div class="anatomy-line" aria-label="training emphasis bars">
+              <div class="anatomy-row"><span>Push</span><div class="bar"><span style="width:82%"></span></div></div>
+              <div class="anatomy-row"><span>Pull</span><div class="bar"><span style="width:92%"></span></div></div>
+              <div class="anatomy-row"><span>Legs</span><div class="bar"><span style="width:88%"></span></div></div>
+              <div class="anatomy-row"><span>Core</span><div class="bar"><span style="width:78%"></span></div></div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="sources">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Source-aware design</div>
+            <h2>Three books, three jobs.</h2>
+          </div>
+          <p class="section-note">The site should not be a copy of any one book. It should be your teaching layer over a curated library: practical, visual, searchable, and safe for consulting.</p>
+        </div>
+        <div class="source-grid">
+          <div class="source">
+            <span class="badge">Exercise Encyclopedia</span>
+            <h3>Men’s Health Big Book</h3>
+            <p>Primary source for exercise families, variations, muscle chapters, warmups, and quick workout ideas.</p>
+          </div>
+          <div class="source">
+            <span class="badge">Practical Coaching</span>
+            <h3>Weight Training for Dummies</h3>
+            <p>Useful for beginner explanations, safety habits, equipment categories, logs, and basic routine design.</p>
+          </div>
+          <div class="source">
+            <span class="badge">Scientific Rationale</span>
+            <h3>Resistance Training Methods</h3>
+            <p>Used for modern programming language: adaptation, force production, older adults, youth training, and injury reduction.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tracks">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Consulting tracks</div>
+            <h2>Same atlas, different client pathways.</h2>
+          </div>
+          <p class="section-note">A good exercise library becomes more powerful when filtered through a client’s age, equipment, goals, and recovery capacity.</p>
+        </div>
+        <div class="track-grid">
+          <article class="track">
+            <div>
+              <div class="icon">🏀</div>
+              <h3>Teen Athlete</h3>
+              <p>Skill first. Load second. Confidence and movement literacy are the product.</p>
+            </div>
+            <ul><li>Body-weight patterns</li><li>Controlled progressions</li><li>Jump/landing mechanics</li></ul>
+          </article>
+          <article class="track">
+            <div>
+              <div class="icon">📚</div>
+              <h3>Student Energy</h3>
+              <p>Short routines for posture, study stamina, and mood regulation.</p>
+            </div>
+            <ul><li>10–15 minute circuits</li><li>Desk posture resets</li><li>Core and upper back</li></ul>
+          </article>
+          <article class="track">
+            <div>
+              <div class="icon">⚙️</div>
+              <h3>Adult Strength</h3>
+              <p>Efficient plans for muscle retention, fat control, and real-world capacity.</p>
+            </div>
+            <ul><li>Full-body templates</li><li>Progressive loading</li><li>Time-saving pairings</li></ul>
+          </article>
+          <article class="track">
+            <div>
+              <div class="icon">🌲</div>
+              <h3>50+ Durability</h3>
+              <p>Maintain strength, protect joints, preserve power, and train without needless grinding.</p>
+            </div>
+            <ul><li>Bench/squat anchors</li><li>Hip and shoulder health</li><li>Recovery-aware volume</li></ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="library">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Interactive library</div>
+            <h2>Exercise cards with coaching context.</h2>
+          </div>
+          <p class="section-note">Search by name or filter by muscle group, movement pattern, equipment, and client track. Click any card for a teaching brief.</p>
+        </div>
+        <div class="library-shell">
+          <div class="filters">
+            <input id="search" type="search" placeholder="Search: bench, squat, row, shoulder, core…" />
+            <select id="groupFilter" aria-label="Muscle group filter">
+              <option value="all">All muscle groups</option>
+            </select>
+            <select id="patternFilter" aria-label="Movement pattern filter">
+              <option value="all">All movement patterns</option>
+            </select>
+            <select id="equipmentFilter" aria-label="Equipment filter">
+              <option value="all">All equipment</option>
+            </select>
+          </div>
+          <div class="quick-filters" id="trackChips" aria-label="Client track quick filters"></div>
+          <div class="catalog-info">
+            <span id="count">Showing all exercises</span>
+            <span>Prototype database • replace/add exercises as the atlas grows</span>
+          </div>
+          <div class="cards" id="cards"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="patterns">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Movement-pattern literacy</div>
+            <h2>Train the body by function, not just by muscle.</h2>
+          </div>
+          <p class="section-note">This pattern layer is what makes the atlas useful across ages and goals: it prevents random exercise selection.</p>
+        </div>
+        <div class="pattern-grid">
+          <div class="pattern-card"><div class="big">P</div><h3>Push</h3><p>Bench, pushup, overhead press. Balance with enough pulling.</p></div>
+          <div class="pattern-card"><div class="big">R</div><h3>Pull</h3><p>Rows, pulldowns, chinups, face pulls. Posture and shoulder health.</p></div>
+          <div class="pattern-card"><div class="big">S</div><h3>Squat</h3><p>Knee-dominant leg strength. Back squat, goblet squat, split squat.</p></div>
+          <div class="pattern-card"><div class="big">H</div><h3>Hinge</h3><p>Posterior-chain strength. Deadlift, RDL, hip raise, swings.</p></div>
+          <div class="pattern-card"><div class="big">C</div><h3>Carry/Core</h3><p>Grip, trunk stiffness, anti-rotation, posture under load.</p></div>
+          <div class="pattern-card"><div class="big">M</div><h3>Mobility</h3><p>Warmups, resets, range preservation, tissue quality.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="programs">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Program templates</div>
+            <h2>Bench and squat can stay at the center.</h2>
+          </div>
+          <p class="section-note">A 20–30 minute maintenance framework for experienced older lifters can be built around two serious anchor lifts while rotating durability work around them.</p>
+        </div>
+        <div class="plan-grid">
+          <article class="plan-card">
+            <h3>6-Day Strength Maintenance <span>20–30 min</span></h3>
+            <p>Low clutter, high consistency. Heavy exposures are separated from lighter volume and durability days.</p>
+            <div class="plan-list">
+              <div class="day"><strong>Mon</strong><span>Heavy Bench + Row or Pullup + optional face pull</span></div>
+              <div class="day"><strong>Tue</strong><span>Heavy Squat + Hip Hinge accessory</span></div>
+              <div class="day"><strong>Wed</strong><span>Core/Stability: McGill curlup, side plank, bird dog, farmer carry</span></div>
+              <div class="day"><strong>Thu</strong><span>Bench Volume + Upper-back emphasis</span></div>
+              <div class="day"><strong>Fri</strong><span>Squat Volume + Split squat or step-up</span></div>
+              <div class="day"><strong>Sat</strong><span>Power/Durability: swing, carry, hip raise, mobility</span></div>
+            </div>
+          </article>
+          <article class="plan-card emrick-note">
+            <h3>Classic Bodybuilding Lens <span>coach layer</span></h3>
+            <p>Use your background with Emrick as a qualitative overlay: feel the target muscle, control the eccentric, own the bottom position, and only then add load.</p>
+            <div class="plan-list">
+              <div class="day"><strong>1</strong><span>Teach the muscle: what should the client feel?</span></div>
+              <div class="day"><strong>2</strong><span>Teach the line of force: where is the resistance pulling?</span></div>
+              <div class="day"><strong>3</strong><span>Teach the joint risk: where should range stop?</span></div>
+              <div class="day"><strong>4</strong><span>Teach the adaptation: strength, hypertrophy, power, or durability?</span></div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="consulting">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Teaching workflow</div>
+            <h2>A repeatable lesson structure for clients.</h2>
+          </div>
+          <p class="section-note">This turns the site from a reference into a consulting tool: every lesson becomes transparent, structured, and documentable.</p>
+        </div>
+        <div class="coach-script">
+          <div class="script-step"><b>STEP 01</b><h3>Assess</h3><p>Choose a track, identify equipment, note injuries, and observe squat, hinge, push, pull, and plank basics.</p></div>
+          <div class="script-step"><b>STEP 02</b><h3>Teach</h3><p>Start with a main move and one regression. Explain target muscles, movement pattern, and key safety cues.</p></div>
+          <div class="script-step"><b>STEP 03</b><h3>Train</h3><p>Use two or three exercises only. Record sets, reps, load, and subjective quality.</p></div>
+          <div class="script-step"><b>STEP 04</b><h3>Progress</h3><p>Advance by adding range, control, reps, or load—never by sacrificing form.</p></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-grid">
+      <div>
+        <strong>Safety note.</strong> This prototype is educational. Clients should train within their competence, use maintained equipment, and seek medical or professional guidance when appropriate.
+      </div>
+      <div>
+        <strong>Copyright note.</strong> This page uses original summaries and exercise names only. Do not reproduce copyrighted book photography or long passages without permission.
+      </div>
+    </div>
+  </footer>
+
+  <dialog id="exerciseModal">
+    <div class="modal-head">
+      <button class="close" id="closeModal" aria-label="Close detail panel">×</button>
+      <h2 id="modalTitle">Exercise</h2>
+      <p id="modalSubtitle">Pattern and purpose</p>
+    </div>
+    <div class="modal-body">
+      <div class="detail-meta" id="modalMeta"></div>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h4>Teaching Focus</h4>
+          <ul id="modalFocus"></ul>
+        </div>
+        <div class="detail-box">
+          <h4>Programming Notes</h4>
+          <ul id="modalNotes"></ul>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <script>
+    const exercises = [
+      {name:'Barbell Bench Press', group:'Chest', pattern:'Push', equipment:'Barbell', level:'Intermediate', tracks:['Adult Strength','50+ Durability'], source:'Chest • Presses', summary:'Primary horizontal press for strength and upper-body capacity.', focus:['Shoulder blades set before unracking','Controlled descent; press with stable wrists','Use a spotter or safety pins for heavy sets'], notes:['Anchor lift for bench-focused clients','Pair with rows or face pulls','Avoid grinding maximal reps in maintenance phases']},
+      {name:'Dumbbell Bench Press', group:'Chest', pattern:'Push', equipment:'Dumbbells', level:'Beginner+', tracks:['Adult Strength','50+ Durability'], source:'Chest • Presses', summary:'Shoulder-friendlier press that lets each arm move independently.', focus:['Own the bottom range','Keep forearms vertical','Control both dumbbells evenly'], notes:['Good substitute if barbell bothers shoulders','Useful for moderate-volume days','Can be neutral-grip for added shoulder comfort']},
+      {name:'Pushup', group:'Chest', pattern:'Push', equipment:'Body weight', level:'Beginner', tracks:['Teen Athlete','Student Energy','Adult Strength'], source:'Chest • Pushups', summary:'Portable body-weight press that also trains trunk stiffness.', focus:['Straight line from head to heel','Elbows roughly 30–45 degrees from torso','Stop set when hips sag'], notes:['Regress with incline pushups','Progress with feet elevated or weight vest','Excellent for student routines']},
+      {name:'Pushup Plus', group:'Chest / Serratus', pattern:'Push', equipment:'Body weight', level:'Beginner+', tracks:['50+ Durability','Teen Athlete','Student Energy'], source:'Chest • Best exercise', summary:'Pushup variation that adds shoulder-blade control through serratus work.', focus:['Finish by reaching upper back slightly upward','Keep ribs down and hips firm','Move slowly at the top'], notes:['Excellent shoulder-health accessory','Useful warmup before benching','Low equipment, high value']},
+      {name:'Incline Dumbbell Bench Press', group:'Chest', pattern:'Push', equipment:'Dumbbells + Bench', level:'Beginner+', tracks:['Adult Strength','50+ Durability'], source:'Chest • Presses', summary:'Upper-chest press variation with adjustable joint demands.', focus:['Low incline is usually enough','Shoulder blades stay anchored','Lower to upper chest with control'], notes:['Good Thursday volume lift','Pair with upper-back pulling','Avoid excessively steep incline if shoulders complain']},
+      {name:'Single-Arm Cable Chest Press', group:'Chest / Core', pattern:'Push', equipment:'Cable', level:'Intermediate', tracks:['Adult Strength','50+ Durability'], source:'Chest • Presses', summary:'Standing press that blends chest training with anti-rotation control.', focus:['Do not twist as cable pulls','Press from stable feet','Keep shoulder down and back'], notes:['Useful for athletic clients','Excellent for core integration','Lighter than bench but very instructive']},
+      {name:'Inverted Row', group:'Upper Back', pattern:'Pull', equipment:'Bar / Rack', level:'Beginner+', tracks:['Teen Athlete','Student Energy','Adult Strength','50+ Durability'], source:'Back • Rows', summary:'Horizontal pulling counterpart to the pushup.', focus:['Pull chest toward bar','Start with shoulder blades','Keep body rigid'], notes:['Balance every pressing program','Regress by bending knees','Progress by elevating feet or adding load']},
+      {name:'Dumbbell Row', group:'Upper Back / Lats', pattern:'Pull', equipment:'Dumbbells', level:'Beginner+', tracks:['Adult Strength','50+ Durability'], source:'Back • Rows', summary:'Simple row family for upper-back, lats, and posture.', focus:['Spine stays long','Pull elbow toward hip or rib cage depending grip','Avoid shrugging'], notes:['One-arm versions correct asymmetry','Chest-supported versions reduce low-back fatigue','Pair with bench press days']},
+      {name:'Barbell Row', group:'Upper Back', pattern:'Pull', equipment:'Barbell', level:'Intermediate', tracks:['Adult Strength'], source:'Back • Rows', summary:'Heavier horizontal pull for upper-back strength.', focus:['Hip hinge position remains still','Do not round lower back','Pull with shoulder blades and elbows'], notes:['Great for strong lifters','Use chest-supported row if low back is tired','Keep volume modest near heavy squat days']},
+      {name:'Cable Row', group:'Upper Back', pattern:'Pull', equipment:'Cable', level:'Beginner+', tracks:['Adult Strength','50+ Durability','Student Energy'], source:'Back • Rows', summary:'Controlled pulling pattern with adjustable handles and grips.', focus:['Sit tall, ribs stacked','Start by drawing shoulders back and down','Avoid rocking torso'], notes:['Good machine option for clients','Can be wide, neutral, underhand, or single-arm','Very useful for posture education']},
+      {name:'Chinup / Pullup', group:'Lats', pattern:'Pull', equipment:'Bar', level:'Intermediate', tracks:['Teen Athlete','Adult Strength','50+ Durability'], source:'Back • Chinups', summary:'Vertical pull for lats, arms, grip, and upper-back control.', focus:['Pull chest toward bar','Return under control','Avoid neck craning'], notes:['Use band-assisted versions as needed','Neutral grip is often shoulder-friendly','Strong but not mandatory for every client']},
+      {name:'Lat Pulldown', group:'Lats', pattern:'Pull', equipment:'Cable / Machine', level:'Beginner', tracks:['Teen Athlete','Adult Strength','50+ Durability'], source:'Back • Pulldowns', summary:'Accessible vertical pull that substitutes for chinups.', focus:['Pull shoulders down first','Bring bar toward upper chest','Do not yank behind neck'], notes:['Excellent for beginners and older clients','Vary grips over time','Pair with pressing for shoulder balance']},
+      {name:'Cable Face Pull with External Rotation', group:'Upper Back / Rotator Cuff', pattern:'Pull', equipment:'Cable', level:'Beginner+', tracks:['50+ Durability','Teen Athlete','Adult Strength'], source:'Back • Best exercise', summary:'Posture and shoulder-health staple for upper back and rotator cuff.', focus:['Pull toward eye level','Rotate hands back at finish','Do not arch lower back'], notes:['Excellent after benching','High value for desk workers','Use light-to-moderate load with clean motion']},
+      {name:'Rear Lateral Raise', group:'Rear Delts / Upper Back', pattern:'Pull', equipment:'Dumbbells', level:'Beginner+', tracks:['50+ Durability','Student Energy','Adult Strength'], source:'Back • Raises', summary:'Small-load movement for rear delts, rhomboids, and posture.', focus:['Hinge or chest support','Slight elbow bend remains fixed','Squeeze shoulder blades without shrugging'], notes:['Great accessory for bench-heavy clients','Use light loads','Can be seated or chest-supported']},
+      {name:'Y-T-L-W-I Raise', group:'Upper Back / Shoulder', pattern:'Pull', equipment:'Light DB / Body weight', level:'Beginner+', tracks:['Student Energy','50+ Durability','Teen Athlete'], source:'Back • Y-T-L-W-I', summary:'Shoulder-blade control sequence for posture and rotator cuff support.', focus:['Light or no load','Move from shoulder blades','Slow controlled reps'], notes:['Excellent warmup or corrective circuit','Useful for students and desk workers','Avoid fatigue; quality only']},
+      {name:'Barbell Shoulder Press', group:'Shoulders', pattern:'Push', equipment:'Barbell', level:'Intermediate', tracks:['Adult Strength'], source:'Shoulders • Presses', summary:'Standing vertical press for shoulder and trunk strength.', focus:['Brace trunk before press','Press in a straight path','Avoid leaning back'], notes:['Useful but not required for all 50+ clients','Push press may reduce shoulder strain for heavier work','Pair with pulling and external rotation']},
+      {name:'Dumbbell Shoulder Press', group:'Shoulders', pattern:'Push', equipment:'Dumbbells', level:'Beginner+', tracks:['Adult Strength','50+ Durability'], source:'Shoulders • Presses', summary:'Vertical pressing with independent arm motion.', focus:['Neutral grip often works well','Keep ribs down','Press directly overhead'], notes:['Use moderate loads','Can be single-arm for core emphasis','Skip if shoulder pain recurs']},
+      {name:'Scaption and Shrug', group:'Shoulders / Traps', pattern:'Mobility', equipment:'Light DB', level:'Beginner+', tracks:['50+ Durability','Student Energy'], source:'Shoulders • Best exercise', summary:'Shoulder-friendly raise pattern that blends deltoid, trap, and serratus function.', focus:['Raise in a Y angle','Thumbs up','Shrug gently at top'], notes:['Excellent shoulder-health accessory','Use light weight','Works well in warmups']},
+      {name:'Lateral Raise', group:'Shoulders', pattern:'Push', equipment:'Dumbbells', level:'Beginner', tracks:['Adult Strength','50+ Durability'], source:'Shoulders • Raises', summary:'Middle-deltoid accessory for shoulder shape and balance.', focus:['Lead with elbows and thumbs slightly up','Do not pour the pitcher','Pause softly at shoulder height'], notes:['Low load, clean reps','Good finisher','Avoid painful arc']},
+      {name:'Cable External Rotation', group:'Rotator Cuff', pattern:'Mobility', equipment:'Cable / Band', level:'Beginner', tracks:['50+ Durability','Teen Athlete','Student Energy'], source:'Shoulders • Rotations', summary:'Direct rotator cuff training for shoulder balance.', focus:['Elbow position fixed','Rotate slowly','Use light load'], notes:['Great before or after pressing','Use bands if no cable','Never chase heavy numbers here']},
+      {name:'Barbell Squat', group:'Quadriceps / Glutes', pattern:'Squat', equipment:'Barbell', level:'Intermediate', tracks:['Adult Strength','50+ Durability'], source:'Quads • Squats', summary:'Primary lower-body strength anchor.', focus:['Brace before descent','Hips and knees bend together','Drive through midfoot and heel'], notes:['Anchor lift for experienced lifters','Heavy day and volume day can coexist','Use safety pins and stop before form breakdown']},
+      {name:'Goblet Squat', group:'Quadriceps / Glutes', pattern:'Squat', equipment:'Dumbbell', level:'Beginner', tracks:['Teen Athlete','Student Energy','50+ Durability'], source:'Quads • Squats', summary:'Teaching squat that encourages upright torso and depth control.', focus:['Hold weight close to chest','Elbows track inside knees','Stay tall through torso'], notes:['Excellent for warmup and clients','High value for learning depth','Good substitute on lighter days']},
+      {name:'Barbell Front Squat', group:'Quadriceps / Core', pattern:'Squat', equipment:'Barbell', level:'Intermediate', tracks:['Adult Strength','Teen Athlete'], source:'Quads • Squats', summary:'Squat variation emphasizing quads and upright posture.', focus:['Elbows stay high','Torso remains tall','Brace hard before each rep'], notes:['Useful when back squat volume is lower','Requires wrist/shoulder mobility','Straps can help rack position']},
+      {name:'Split Squat', group:'Quadriceps / Glutes', pattern:'Squat', equipment:'Body weight / DB / Barbell', level:'Beginner+', tracks:['Teen Athlete','50+ Durability','Adult Strength'], source:'Quads • Squats', summary:'Single-leg squat pattern for balance and unilateral strength.', focus:['Lower straight down','Front foot stable','Torso tall'], notes:['Great durability exercise','Use dumbbells before barbell for many clients','Excellent accessory after squat']},
+      {name:'Reverse Lunge', group:'Quadriceps / Glutes', pattern:'Squat', equipment:'Body weight / DB', level:'Beginner+', tracks:['Teen Athlete','50+ Durability','Student Energy'], source:'Quads • Lunges', summary:'Knee-friendly lunge variation for leg strength and balance.', focus:['Step back under control','Front heel stays grounded','Return with clean posture'], notes:['Often friendlier than forward lunges','Can be body-weight in warmups','Useful for travel workouts']},
+      {name:'Step-Up', group:'Glutes / Quads', pattern:'Squat', equipment:'Bench / DB', level:'Beginner+', tracks:['Teen Athlete','50+ Durability','Adult Strength'], source:'Glutes & Hams • Stepups', summary:'Unilateral pattern that builds hip drive and leg control.', focus:['Drive through lead heel','Do not launch from back foot','Control the descent'], notes:['Excellent for older lifters','Choose box height carefully','Good knee and hip durability exercise']},
+      {name:'Body-Weight Squat with Knee Press-Out', group:'Hips / Quads', pattern:'Squat', equipment:'Mini-band', level:'Beginner', tracks:['Teen Athlete','Student Energy','50+ Durability'], source:'Quads • Squats', summary:'Squat pattern that teaches hip control and knee tracking.', focus:['Band above or below knees','Press knees outward gently','Keep feet rooted'], notes:['Warmup before squats','Useful for clients whose knees cave in','Low fatigue, high teaching value']},
+      {name:'Barbell Straight-Leg Deadlift', group:'Hamstrings / Glutes', pattern:'Hinge', equipment:'Barbell', level:'Intermediate', tracks:['Adult Strength','50+ Durability'], source:'Glutes & Hams • Straight-leg deadlifts', summary:'Posterior-chain hinge emphasizing hamstrings and glutes.', focus:['Soft knees stay fixed','Hips move back','Spine remains neutral'], notes:['Good accessory to squat','Use moderate load and strict range','Stop before lower back rounds']},
+      {name:'Dumbbell Straight-Leg Deadlift', group:'Hamstrings / Glutes', pattern:'Hinge', equipment:'Dumbbells', level:'Beginner+', tracks:['Adult Strength','50+ Durability','Student Energy'], source:'Glutes & Hams • Straight-leg deadlifts', summary:'Accessible hinge that trains posterior chain and hamstring flexibility.', focus:['Dumbbells close to legs','Hips back, chest proud','Rise by squeezing glutes'], notes:['Great teaching lift','Works well in 20-minute sessions','Progress slowly']},
+      {name:'Hip Raise', group:'Glutes / Hamstrings', pattern:'Hinge', equipment:'Body weight', level:'Beginner', tracks:['Student Energy','50+ Durability','Teen Athlete'], source:'Glutes & Hams • Hip raises', summary:'Glute activation and posterior-chain endurance movement.', focus:['Push through heels','Squeeze glutes at top','Avoid arching lower back'], notes:['Great warmup before squats/deadlifts','Can be loaded with plate','Useful if glutes are underactive']},
+      {name:'Single-Leg Hip Raise', group:'Glutes / Hamstrings', pattern:'Hinge', equipment:'Body weight', level:'Beginner+', tracks:['50+ Durability','Teen Athlete'], source:'Glutes & Hams • Hip raises', summary:'Unilateral hip extension for glute strength and pelvic control.', focus:['Hips stay level','Move through glute not low back','Pause at top'], notes:['Good corrective for asymmetry','Low equipment','Excellent durability accessory']},
+      {name:'Swiss-Ball Hip Raise and Leg Curl', group:'Hamstrings / Glutes', pattern:'Hinge', equipment:'Swiss ball', level:'Intermediate', tracks:['Adult Strength','50+ Durability'], source:'Glutes & Hams • Hip raises', summary:'Hamstring curl plus hip extension without a machine.', focus:['Keep hips lifted','Pull heels toward hips','Move smoothly'], notes:['Excellent alternative to leg curl machine','Harder than it looks','Progress from two legs to one']},
+      {name:'Cable Pull Through', group:'Glutes / Hamstrings', pattern:'Hinge', equipment:'Cable', level:'Beginner+', tracks:['Adult Strength','50+ Durability'], source:'Glutes & Hams • Straight-leg deadlifts', summary:'Hinge pattern with cable resistance that teaches hip extension.', focus:['Arms stay passive','Hips back then forward','Squeeze glutes to stand'], notes:['Great low-back-friendly hinge','Useful for learning the pattern','Pair with squats or lunges']},
+      {name:'Lateral Band Walk', group:'Glute Medius / Hips', pattern:'Mobility', equipment:'Mini-band', level:'Beginner', tracks:['Teen Athlete','50+ Durability','Student Energy'], source:'Glutes & Hams • Hip abductions', summary:'Hip abductor activation for knee tracking and lateral control.', focus:['Small controlled steps','Keep tension on band','Avoid rocking torso'], notes:['Great warmup before lower body','Useful for athletes','Excellent for older adults’ hip stability']},
+      {name:'Farmer’s Walk', group:'Grip / Core / Total Body', pattern:'Carry/Core', equipment:'Dumbbells', level:'Beginner+', tracks:['Adult Strength','50+ Durability'], source:'Arms • Forearms', summary:'Loaded carry for grip, posture, trunk stiffness, and work capacity.', focus:['Walk tall','Shoulders packed, ribs down','Use controlled steps'], notes:['One of the best durability moves','Progress by distance or load','Can be used Saturday in maintenance plan']},
+      {name:'Plank', group:'Core', pattern:'Carry/Core', equipment:'Body weight', level:'Beginner', tracks:['Student Energy','Teen Athlete','50+ Durability'], source:'Core • Stability', summary:'Basic anti-extension core drill for trunk stiffness.', focus:['Elbows under shoulders','Glutes lightly squeezed','Breathe without losing position'], notes:['Use quality holds, not heroic suffering','Regress with kneeling plank','Pair with side plank and bird dog']},
+      {name:'Side Plank', group:'Core / Lateral Hip', pattern:'Carry/Core', equipment:'Body weight', level:'Beginner+', tracks:['Student Energy','50+ Durability','Teen Athlete'], source:'Core • Stability', summary:'Lateral trunk endurance drill that supports spine and hip stability.', focus:['Straight line shoulder-to-ankle','Hips do not drift back','Breathe steadily'], notes:['Excellent for back health','Regress with knees bent','Progress with feet elevated']},
+      {name:'Bird Dog', group:'Core / Back', pattern:'Carry/Core', equipment:'Body weight', level:'Beginner', tracks:['Student Energy','50+ Durability','Teen Athlete'], source:'Core • Stability', summary:'Low-risk spinal stability drill for coordination and back endurance.', focus:['Opposite arm and leg extend','Hips stay square','Pause without arching'], notes:['Great daily reset','Part of back-friendly circuits','Useful before lifting']},
+      {name:'McGill Curlup', group:'Core', pattern:'Carry/Core', equipment:'Body weight', level:'Beginner', tracks:['50+ Durability','Student Energy'], source:'Core • Stability', summary:'Spine-sparing abdominal endurance drill.', focus:['Do not flatten lower back','Lift head and shoulders slightly','Hold and breathe'], notes:['Excellent for back health routines','Use short holds','Pair with side plank and bird dog']},
+      {name:'Cat Camel', group:'Spine Mobility', pattern:'Mobility', equipment:'Body weight', level:'Beginner', tracks:['Student Energy','50+ Durability','Teen Athlete'], source:'Core • Stability', summary:'Gentle spinal movement preparation for lifting or desk breaks.', focus:['Move slowly','Do not force end range','Use small smooth reps'], notes:['Good daily warmup','Helps restore movement comfort','Not a loaded strength exercise']},
+      {name:'Barbell Rollout', group:'Core', pattern:'Carry/Core', equipment:'Barbell', level:'Advanced', tracks:['Adult Strength'], source:'Core • Stability', summary:'High-demand anti-extension core exercise.', focus:['Glutes tight','Ribs down','Roll only as far as spine stays controlled'], notes:['Advanced; regress with Swiss-ball rollout','Avoid if back pain is active','Useful for strong clients']},
+      {name:'Kettlebell or Dumbbell Swing', group:'Glutes / Hamstrings', pattern:'Hinge', equipment:'Kettlebell / Dumbbell', level:'Intermediate', tracks:['Adult Strength','50+ Durability','Teen Athlete'], source:'Glutes & Hams • Best exercise', summary:'Explosive hinge for posterior-chain power and athletic durability.', focus:['Hinge, don’t squat','Power comes from hips','Neutral spine throughout'], notes:['Great Saturday power movement','Use only after hinge pattern is solid','Stop when speed or form decays']},
+      {name:'Medicine-Ball Side Throw', group:'Core / Power', pattern:'Carry/Core', equipment:'Medicine ball', level:'Intermediate', tracks:['Teen Athlete','Adult Strength'], source:'Core • Rotational', summary:'Rotational power drill for throwing and swinging sports.', focus:['Rotate hips and torso together','Brace before throw','Catch and reset safely'], notes:['Great for athletes','Use light-to-moderate ball','Requires safe wall and space']},
+      {name:'Doorway Chest Stretch', group:'Chest / Shoulder', pattern:'Mobility', equipment:'Doorway', level:'Beginner', tracks:['Student Energy','50+ Durability','Adult Strength'], source:'Chest • Stretch', summary:'Simple pec stretch to counter desk posture and pressing volume.', focus:['Gentle stretch, not pain','Keep ribs down','Breathe slowly'], notes:['Useful after bench days','Good daily desk reset','Do both sides']},
+      {name:'Kneeling Hip Flexor Stretch', group:'Hip Flexors', pattern:'Mobility', equipment:'Body weight', level:'Beginner', tracks:['Student Energy','50+ Durability','Teen Athlete'], source:'Quads • Stretch', summary:'Hip mobility drill for squat depth, posture, and low-back comfort.', focus:['Squeeze rear-side glute','Ribs stacked over pelvis','Add gentle reach or rotation'], notes:['Great before lower-body work','Daily option for desk workers','Do not overarch']},
+      {name:'Standing Hamstring Stretch', group:'Hamstrings', pattern:'Mobility', equipment:'Bench / Step', level:'Beginner', tracks:['Student Energy','50+ Durability'], source:'Glutes & Hams • Stretch', summary:'Controlled hamstring stretch with spine kept long.', focus:['Hinge at hips','Keep back neutral','Adjust toe angle to bias fibers'], notes:['Use after training or as mobility reset','Avoid aggressive bouncing','Good for hinge prep if gentle']},
+      {name:'Sleeper Stretch', group:'Shoulder', pattern:'Mobility', equipment:'Body weight', level:'Beginner', tracks:['50+ Durability','Adult Strength'], source:'Shoulders • Stretch', summary:'Posterior shoulder mobility stretch.', focus:['Gentle pressure only','Shoulder stays stacked safely','Stop before joint pain'], notes:['Useful for shoulder maintenance','Not for painful shoulders without guidance','Small range is fine']},
+      {name:'Side-Lying Thoracic Rotation', group:'Thoracic Spine', pattern:'Mobility', equipment:'Body weight', level:'Beginner', tracks:['Student Energy','50+ Durability','Teen Athlete'], source:'Warmup • Mobility', summary:'Upper-spine rotation drill for posture and shoulder mechanics.', focus:['Move through upper back','Keep hips quiet','Breathe into open position'], notes:['Excellent before pressing or pulling','Good desk break','Do both sides']}
+    ];
+
+    const state = { q:'', group:'all', pattern:'all', equipment:'all', track:'all' };
+    const cardsEl = document.getElementById('cards');
+    const countEl = document.getElementById('count');
+    const searchEl = document.getElementById('search');
+    const groupEl = document.getElementById('groupFilter');
+    const patternEl = document.getElementById('patternFilter');
+    const equipmentEl = document.getElementById('equipmentFilter');
+    const chipsEl = document.getElementById('trackChips');
+    const modal = document.getElementById('exerciseModal');
+    const closeModal = document.getElementById('closeModal');
+
+    function unique(prop) {
+      return [...new Set(exercises.map(e => e[prop]))].sort();
+    }
+    function uniqueTracks() {
+      return [...new Set(exercises.flatMap(e => e.tracks))].sort();
+    }
+    function fillSelect(el, values) {
+      values.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v; opt.textContent = v;
+        el.appendChild(opt);
+      });
+    }
+    fillSelect(groupEl, unique('group'));
+    fillSelect(patternEl, unique('pattern'));
+    fillSelect(equipmentEl, unique('equipment'));
+
+    function renderChips() {
+      chipsEl.innerHTML = '';
+      const all = document.createElement('button');
+      all.className = 'chip active'; all.textContent = 'All client tracks'; all.dataset.track = 'all';
+      chipsEl.appendChild(all);
+      uniqueTracks().forEach(track => {
+        const chip = document.createElement('button');
+        chip.className = 'chip'; chip.textContent = track; chip.dataset.track = track;
+        chipsEl.appendChild(chip);
+      });
+      chipsEl.addEventListener('click', (e) => {
+        if (!e.target.classList.contains('chip')) return;
+        state.track = e.target.dataset.track;
+        [...chipsEl.children].forEach(c => c.classList.remove('active'));
+        e.target.classList.add('active');
+        renderCards();
+      });
+    }
+
+    function tagClass(track) {
+      if (track.includes('50+')) return 'durable';
+      if (track.includes('Teen')) return 'youth';
+      if (track.includes('Adult')) return 'strength';
+      return '';
+    }
+
+    function matches(e) {
+      const text = [e.name, e.group, e.pattern, e.equipment, e.level, e.source, e.summary, ...e.tracks].join(' ').toLowerCase();
+      return (!state.q || text.includes(state.q.toLowerCase())) &&
+        (state.group === 'all' || e.group === state.group) &&
+        (state.pattern === 'all' || e.pattern === state.pattern) &&
+        (state.equipment === 'all' || e.equipment === state.equipment) &&
+        (state.track === 'all' || e.tracks.includes(state.track));
+    }
+
+    function renderCards() {
+      const list = exercises.filter(matches);
+      cardsEl.innerHTML = '';
+      countEl.textContent = `Showing ${list.length} of ${exercises.length} exercises`;
+      if (!list.length) {
+        cardsEl.innerHTML = '<div class="source" style="grid-column:1/-1"><h3>No matching exercises yet.</h3><p>Try a broader filter, or add this as a future exercise request.</p></div>';
+        return;
+      }
+      list.forEach((e, idx) => {
+        const card = document.createElement('article');
+        card.className = 'exercise-card';
+        card.dataset.patternLetter = e.pattern[0] || 'E';
+        card.innerHTML = `
+          <div class="card-top">
+            <div class="tag-row">${e.tracks.slice(0,3).map(t => `<span class="tag ${tagClass(t)}">${t}</span>`).join('')}</div>
+            <h3>${e.name}</h3>
+            <p>${e.summary}</p>
+          </div>
+          <div class="card-bottom">
+            <span class="pill">${e.group}</span>
+            <span class="pill">${e.pattern}</span>
+            <span class="pill">${e.equipment}</span>
+          </div>`;
+        card.addEventListener('click', () => openDetail(e));
+        cardsEl.appendChild(card);
+      });
+    }
+
+    function openDetail(e) {
+      document.getElementById('modalTitle').textContent = e.name;
+      document.getElementById('modalSubtitle').textContent = `${e.group} • ${e.pattern} • ${e.source}`;
+      document.getElementById('modalMeta').innerHTML = [e.level, e.equipment, ...e.tracks].map(x => `<span class="tag ${tagClass(x)}">${x}</span>`).join('');
+      document.getElementById('modalFocus').innerHTML = e.focus.map(x => `<li>${x}</li>`).join('');
+      document.getElementById('modalNotes').innerHTML = e.notes.map(x => `<li>${x}</li>`).join('');
+      modal.showModal();
+    }
+
+    searchEl.addEventListener('input', e => { state.q = e.target.value; renderCards(); });
+    groupEl.addEventListener('change', e => { state.group = e.target.value; renderCards(); });
+    patternEl.addEventListener('change', e => { state.pattern = e.target.value; renderCards(); });
+    equipmentEl.addEventListener('change', e => { state.equipment = e.target.value; renderCards(); });
+    closeModal.addEventListener('click', () => modal.close());
+    modal.addEventListener('click', e => { if (e.target === modal) modal.close(); });
+
+    renderChips();
+    renderCards();
+  </script>
+</body>
+</html>
